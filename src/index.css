@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  --color-carvao: #1A1410;
+  --color-creme: #F4EDE4;
+  --color-pimenta: #E8542A;
+  --color-molho: #F0B429;
+  --color-madeira: #3D2C22;
+
+  --font-display: "Archivo Black", sans-serif;
+  --font-body: "Manrope", sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-carvao);
+}
+
+html {
+  scroll-behavior: smooth;
+}
