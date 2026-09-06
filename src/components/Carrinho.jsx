@@ -21,7 +21,7 @@ function Carrinho({ carrinho, aoFechar, aoRemover }) {
             `Total: R$ ${valorTotal.toFixed(2).replace(".", ",")}\n\n` +
             `Endereço de entrega: ${endereco}`
 
-        const numeroWhatsApp = "5575998610111" // troque pelo número real, com DDI+DDD
+        const numeroWhatsApp = "557599683710" // troque pelo número real, com DDI+DDD
         const link = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`
 
         window.open(link, "_blank")
