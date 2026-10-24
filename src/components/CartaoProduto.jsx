@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'react-toastify'
+import { formatarPreco } from '../utils/formatarPreco'
 
 function CartaoProduto({ produto, quantidade, aoAdicionar, aoRemoverUm }) {
   const [confirmado, setConfirmado] = useState(false)
@@ -29,7 +30,7 @@ function CartaoProduto({ produto, quantidade, aoAdicionar, aoRemoverUm }) {
 
         <div className="flex items-center justify-between mt-4">
           <p className="font-display text-molho text-xl">
-            R$ {produto.preco.toFixed(2).replace(".", ",")}
+            {formatarPreco(produto.preco)}
           </p>
 
           {quantidade === 0 ? (

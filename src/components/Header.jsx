@@ -1,3 +1,5 @@
+import { loja } from '../config/loja'
+
 function Header() {
   return (
     <header className="relative w-full h-[480px] overflow-hidden">
@@ -10,14 +12,14 @@ function Header() {
 
       <div className="relative w-full h-full flex flex-col justify-center items-center px-4 text-center">
         <h1 className="font-display text-5xl md:text-7xl text-creme tracking-wide">
-          CANTINHO DO YAKISOBA
+          {loja.nome.toUpperCase()}
         </h1>
         <p className="text-creme/80 mt-4">
-          Praça Ruy Barbosa, ao lado do Bob's
+          {loja.endereco}
         </p>
         <div className="bg-pimenta px-5 py-2 rounded-full mt-6">
           <span className="text-creme font-semibold text-sm">
-            Terça a domingo · 18h às 23h
+            {loja.horario.texto}
           </span>
         </div>
 

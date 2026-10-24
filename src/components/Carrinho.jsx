@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { formatarPreco } from '../utils/formatarPreco'
+import { linkWhatsApp } from '../config/loja'
 
 function Carrinho({ carrinho, aoFechar, aoRemover }) {
     const [endereco, setEndereco] = useState("")
@@ -18,13 +20,10 @@ function Carrinho({ carrinho, aoFechar, aoRemover }) {
 
         const mensagem =
             `Olá! Quero fazer o seguinte pedido:\n\n${linhasDoPedido}\n\n` +
-            `Total: R$ ${valorTotal.toFixed(2).replace(".", ",")}\n\n` +
+            `Total: ${formatarPreco(valorTotal)}\n\n` +
             `Endereço de entrega: ${endereco}`
 
-        const numeroWhatsApp = "557599683710" // troque pelo número real, com DDI+DDD
-        const link = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`
-
-        window.open(link, "_blank")
+        window.open(linkWhatsApp(mensagem), "_blank")
     }
 
     return (
@@ -45,7 +44,7 @@ function Carrinho({ carrinho, aoFechar, aoRemover }) {
                                 <span>{item.quantidade}x {item.nome}</span>
                                 <div className="flex items-center gap-3">
                                     <span className="text-molho font-semibold">
-                                        R$ {(item.quantidade * item.preco).toFixed(2).replace(".", ",")}
+                                        {formatarPreco(item.quantidade * item.preco)}
                                     </span>
                                     <button onClick={() => aoRemover(item.id)} className="text-creme/50 hover:text-pimenta">
                                         <i className="fa fa-trash"></i>
@@ -57,7 +56,7 @@ function Carrinho({ carrinho, aoFechar, aoRemover }) {
                 )}
 
                 <p className="font-display text-molho text-xl mb-4">
-                    Total: R$ {valorTotal.toFixed(2).replace(".", ",")}
+                    Total: {formatarPreco(valorTotal)}
                 </p>
 
                 <label className="text-creme text-sm font-semibold">Endereço de entrega:</label>
