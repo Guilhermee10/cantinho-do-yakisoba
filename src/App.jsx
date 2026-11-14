@@ -12,48 +12,45 @@ function App() {
   const [carrinhoAberto, setCarrinhoAberto] = useState(false)
   const [pulsando, setPulsando] = useState(false)
 
-  function adicionarAoCarrinho(produto) {
+  // Cada linha do carrinho é identificada pela "chave" (produto + tamanho),
+  // e não só pelo id do produto: Especial Mini e Especial Grande são linhas diferentes.
+  function adicionarAoCarrinho(novoItem) {
     setCarrinho((carrinhoAtual) => {
-      const itemExistente = carrinhoAtual.find((item) => item.id === produto.id)
+      const itemExistente = carrinhoAtual.find((item) => item.chave === novoItem.chave)
 
       if (itemExistente) {
         return carrinhoAtual.map((item) =>
-          item.id === produto.id
+          item.chave === novoItem.chave
             ? { ...item, quantidade: item.quantidade + 1 }
             : item
         )
       }
 
-      return [...carrinhoAtual, { ...produto, quantidade: 1 }]
+      return [...carrinhoAtual, { ...novoItem, quantidade: 1 }]
     })
 
     setPulsando(true)
     setTimeout(() => setPulsando(false), 250)
   }
 
-  function removerUmDoCarrinho(idProduto) {
+  function removerUmDoCarrinho(chave) {
     setCarrinho((carrinhoAtual) =>
       carrinhoAtual
         .map((item) =>
-          item.id === idProduto ? { ...item, quantidade: item.quantidade - 1 } : item
+          item.chave === chave ? { ...item, quantidade: item.quantidade - 1 } : item
         )
         .filter((item) => item.quantidade > 0)
     )
   }
 
-  function removerItemDoCarrinho(idProduto) {
-    setCarrinho((carrinhoAtual) => carrinhoAtual.filter((item) => item.id !== idProduto))
-  }
-
   return (
-    <div>
+    <div className="pb-24">
       <ToastContainer position="top-center" theme="dark" autoClose={1500} hideProgressBar />
 
       <Header />
       <Cardapio
         carrinho={carrinho}
         aoAdicionar={adicionarAoCarrinho}
-        aoRemoverUm={removerUmDoCarrinho}
       />
       <Footer />
 
@@ -67,7 +64,8 @@ function App() {
         <Carrinho
           carrinho={carrinho}
           aoFechar={() => setCarrinhoAberto(false)}
-          aoRemover={removerItemDoCarrinho}
+          aoAdicionar={adicionarAoCarrinho}
+          aoRemoverUm={removerUmDoCarrinho}
         />
       )}
     </div>

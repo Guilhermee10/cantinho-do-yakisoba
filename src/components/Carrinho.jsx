@@ -1,94 +1,224 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import SeletorOpcoes from './SeletorOpcoes'
 import { formatarPreco } from '../utils/formatarPreco'
 import { linkWhatsApp } from '../config/loja'
+import {
+  calcularTotal,
+  formasDePagamento,
+  formasDeRecebimento,
+  montarMensagem,
+  validarPedido,
+} from '../utils/montarMensagem'
 
-function Carrinho({ carrinho, aoFechar, aoRemover }) {
-    const [endereco, setEndereco] = useState("")
-    const [erroEndereco, setErroEndereco] = useState(false)
+const classeCampo =
+  "w-full h-12 bg-chapa text-creme border border-borda rounded-xl px-3.5 mt-1.5 placeholder:text-areia/70"
 
-    const valorTotal = carrinho.reduce((soma, item) => soma + item.quantidade * item.preco, 0)
+function Carrinho({ carrinho, aoFechar, aoAdicionar, aoRemoverUm }) {
+  // Um único objeto guarda todos os campos do formulário.
+  const [dados, setDados] = useState({
+    nome: "",
+    recebimento: null,
+    endereco: "",
+    pagamento: null,
+    troco: "",
+  })
+  const [erros, setErros] = useState({})
 
-    function finalizarPedido() {
-        if (endereco.trim().length < 5) {
-            setErroEndereco(true)
-            return
-        }
+  const valorTotal = calcularTotal(carrinho)
+  const pedidoVazio = carrinho.length === 0
 
-        const linhasDoPedido = carrinho
-            .map((item) => `- ${item.quantidade}x ${item.nome}`)
-            .join("\n")
-
-        const mensagem =
-            `Olá! Quero fazer o seguinte pedido:\n\n${linhasDoPedido}\n\n` +
-            `Total: ${formatarPreco(valorTotal)}\n\n` +
-            `Endereço de entrega: ${endereco}`
-
-        window.open(linkWhatsApp(mensagem), "_blank")
+  // Fecha a tela com a tecla Esc. O "return" remove o ouvinte quando
+  // o componente sai da tela, para não deixar ouvinte sobrando.
+  useEffect(() => {
+    function aoPressionarTecla(evento) {
+      if (evento.key === "Escape") aoFechar()
     }
+    window.addEventListener("keydown", aoPressionarTecla)
+    return () => window.removeEventListener("keydown", aoPressionarTecla)
+  }, [aoFechar])
 
-    return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
-            <div className="bg-madeira rounded-xl p-6 w-full max-w-md">
-                <h2 className="font-display text-creme text-2xl mb-4">MEU CARRINHO</h2>
+  // Atualiza um campo e apaga o erro dele, se houver.
+  function alterar(campo, valor) {
+    setDados((atual) => ({ ...atual, [campo]: valor }))
+    setErros((atual) => ({ ...atual, [campo]: undefined }))
+  }
 
-                {carrinho.length === 0 ? (
-                    <div className="flex flex-col items-center py-8 text-creme/50">
-                        <i className="fa fa-utensils text-4xl mb-3"></i>
-                        <p>Seu carrinho está vazio.</p>
-                        <p className="text-sm">Adicione algo saboroso do cardápio!</p>
-                    </div>
-                ) : (
-                    <div className="flex flex-col gap-3 mb-4">
-                        {carrinho.map((item) => (
-                            <div key={item.id} className="flex justify-between items-center text-creme">
-                                <span>{item.quantidade}x {item.nome}</span>
-                                <div className="flex items-center gap-3">
-                                    <span className="text-molho font-semibold">
-                                        {formatarPreco(item.quantidade * item.preco)}
-                                    </span>
-                                    <button onClick={() => aoRemover(item.id)} className="text-creme/50 hover:text-pimenta">
-                                        <i className="fa fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
+  function finalizarPedido() {
+    const errosEncontrados = validarPedido(dados)
+    if (Object.keys(errosEncontrados).length > 0) {
+      setErros(errosEncontrados)
+      return
+    }
+    const mensagem = montarMensagem({ carrinho, ...dados })
+    window.open(linkWhatsApp(mensagem), "_blank")
+  }
 
-                <p className="font-display text-molho text-xl mb-4">
-                    Total: {formatarPreco(valorTotal)}
-                </p>
-
-                <label className="text-creme text-sm font-semibold">Endereço de entrega:</label>
-                <input
-                    type="text"
-                    value={endereco}
-                    onChange={(e) => {
-                        setEndereco(e.target.value)
-                        setErroEndereco(false)
-                    }}
-                    placeholder="Rua, número, bairro..."
-                    className="w-full bg-carvao text-creme border border-creme/20 rounded-lg p-2 mt-1"
-                />
-                {erroEndereco && (
-                    <p className="text-pimenta text-sm mt-1">Digite seu endereço completo.</p>
-                )}
-
-                <div className="flex items-center justify-between mt-6">
-                    <button onClick={aoFechar} className="text-creme/70">
-                        Fechar
-                    </button>
-                    <button
-                        onClick={finalizarPedido}
-                        disabled={carrinho.length === 0}
-                        className="bg-pimenta text-creme px-5 py-2 rounded-full font-semibold disabled:opacity-40"
-                    >
-                        Finalizar no WhatsApp
-                    </button>
-                </div>
-            </div>
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-pedido"
+      className="fixed inset-0 z-50 bg-carvao overflow-y-auto"
+    >
+      <div className="max-w-md mx-auto px-4 pb-8">
+        <div className="h-16 flex items-center gap-3">
+          <button
+            onClick={aoFechar}
+            aria-label="Voltar ao cardápio"
+            className="w-11 h-11 rounded-full bg-chapa text-creme flex items-center justify-center hover:bg-borda transition-colors"
+          >
+            <i aria-hidden="true" className="fa fa-chevron-left"></i>
+          </button>
+          <h2 id="titulo-pedido" className="font-display text-creme text-2xl">
+            SEU PEDIDO
+          </h2>
         </div>
-    )
+
+        {pedidoVazio ? (
+          <div className="flex flex-col items-center py-12 text-areia">
+            <i aria-hidden="true" className="fa fa-utensils text-4xl mb-3"></i>
+            <p>Seu pedido está vazio.</p>
+            <p className="text-sm">Adicione algo do cardápio.</p>
+          </div>
+        ) : (
+          <ul className="bg-chapa rounded-2xl px-3.5 divide-y divide-borda/60">
+            {carrinho.map((item) => (
+              <li key={item.chave} className="flex items-center gap-3 py-3">
+                <div className="flex-1">
+                  <p className="text-creme font-extrabold leading-tight">{item.nome}</p>
+                  {item.detalhe && <p className="text-areia text-xs">{item.detalhe}</p>}
+                  <p className="text-molho text-sm font-extrabold">
+                    {formatarPreco(item.quantidade * item.preco)}
+                  </p>
+                </div>
+
+                <div className="flex items-center bg-carvao rounded-full">
+                  <button
+                    onClick={() => aoRemoverUm(item.chave)}
+                    aria-label={`Diminuir quantidade de ${item.nome}`}
+                    className="w-11 h-11 flex items-center justify-center text-creme hover:text-pimenta"
+                  >
+                    <i aria-hidden="true" className="fa fa-minus"></i>
+                  </button>
+                  <span className="text-creme font-extrabold w-5 text-center">
+                    {item.quantidade}
+                  </span>
+                  <button
+                    onClick={() => aoAdicionar(item)}
+                    aria-label={`Aumentar quantidade de ${item.nome}`}
+                    className="w-11 h-11 flex items-center justify-center text-creme hover:text-molho"
+                  >
+                    <i aria-hidden="true" className="fa fa-plus"></i>
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <h3 className="font-display text-creme text-[15px] mt-6 mb-2.5">
+          COMO VOCÊ QUER RECEBER?
+        </h3>
+        <div className="flex">
+          <SeletorOpcoes
+            legenda="Como você quer receber"
+            opcoes={formasDeRecebimento}
+            selecionada={dados.recebimento}
+            aoSelecionar={(id) => alterar("recebimento", id)}
+          />
+        </div>
+        {erros.recebimento && (
+          <p role="alert" className="text-pimenta text-sm mt-1.5">{erros.recebimento}</p>
+        )}
+
+        <div className="mt-5">
+          <label htmlFor="nome" className="text-creme text-sm font-extrabold">
+            Seu nome
+          </label>
+          <input
+            id="nome"
+            type="text"
+            autoComplete="given-name"
+            value={dados.nome}
+            onChange={(e) => alterar("nome", e.target.value)}
+            className={classeCampo}
+          />
+          {erros.nome && (
+            <p role="alert" className="text-pimenta text-sm mt-1.5">{erros.nome}</p>
+          )}
+        </div>
+
+        {dados.recebimento === "entrega" && (
+          <div className="mt-3.5">
+            <label htmlFor="endereco" className="text-creme text-sm font-extrabold">
+              Endereço de entrega
+            </label>
+            <input
+              id="endereco"
+              type="text"
+              autoComplete="street-address"
+              value={dados.endereco}
+              onChange={(e) => alterar("endereco", e.target.value)}
+              placeholder="Rua, número, bairro"
+              className={classeCampo}
+            />
+            {erros.endereco && (
+              <p role="alert" className="text-pimenta text-sm mt-1.5">{erros.endereco}</p>
+            )}
+          </div>
+        )}
+
+        <h3 className="font-display text-creme text-[15px] mt-6 mb-2.5">
+          FORMA DE PAGAMENTO
+        </h3>
+        <div className="flex">
+          <SeletorOpcoes
+            legenda="Forma de pagamento"
+            opcoes={formasDePagamento}
+            selecionada={dados.pagamento}
+            aoSelecionar={(id) => alterar("pagamento", id)}
+          />
+        </div>
+        {erros.pagamento && (
+          <p role="alert" className="text-pimenta text-sm mt-1.5">{erros.pagamento}</p>
+        )}
+
+        {dados.pagamento === "dinheiro" && (
+          <div className="mt-3.5">
+            <label htmlFor="troco" className="text-creme text-sm font-extrabold">
+              Troco para quanto? <span className="text-areia font-semibold">(opcional)</span>
+            </label>
+            <input
+              id="troco"
+              type="text"
+              inputMode="decimal"
+              value={dados.troco}
+              onChange={(e) => alterar("troco", e.target.value)}
+              placeholder="Ex.: R$ 100,00"
+              className={classeCampo}
+            />
+          </div>
+        )}
+
+        <div className="flex items-baseline justify-between mt-6 pt-4 border-t border-borda/60">
+          <p className="text-creme/90 font-semibold">Total</p>
+          <p className="font-display text-molho text-2xl">{formatarPreco(valorTotal)}</p>
+        </div>
+
+        <button
+          onClick={finalizarPedido}
+          disabled={pedidoVazio}
+          className="w-full h-14 mt-4 rounded-2xl bg-pimenta text-carvao font-extrabold flex items-center justify-center gap-2.5 disabled:opacity-40"
+        >
+          <i aria-hidden="true" className="fa-brands fa-whatsapp text-xl"></i>
+          Enviar pedido no WhatsApp
+        </button>
+        <p className="text-areia text-xs text-center mt-2.5">
+          O pedido abre no WhatsApp da loja já preenchido. É só enviar.
+        </p>
+      </div>
+    </div>
+  )
 }
 
 export default Carrinho
