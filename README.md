@@ -48,6 +48,17 @@ npm run dev
 
 Acesse `http://localhost:5173`.
 
+## Testes
+
+```bash
+npm test          # roda todos os testes uma vez
+npm run test:watch  # fica rodando e repete a cada alteração
+```
+
+Testes unitários com **Vitest** cobrem as regras do negócio, que ficam em
+funções puras separadas da interface: carrinho, montagem da mensagem do
+WhatsApp, validação do pedido, horário de funcionamento e formatação de preço.
+
 ## Estrutura
 
 ```
