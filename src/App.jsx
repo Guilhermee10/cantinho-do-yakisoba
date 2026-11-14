@@ -43,10 +43,6 @@ function App() {
     )
   }
 
-  function removerItemDoCarrinho(chave) {
-    setCarrinho((carrinhoAtual) => carrinhoAtual.filter((item) => item.chave !== chave))
-  }
-
   return (
     <div className="pb-24">
       <ToastContainer position="top-center" theme="dark" autoClose={1500} hideProgressBar />
@@ -70,7 +66,6 @@ function App() {
           aoFechar={() => setCarrinhoAberto(false)}
           aoAdicionar={adicionarAoCarrinho}
           aoRemoverUm={removerUmDoCarrinho}
-          aoRemover={removerItemDoCarrinho}
         />
       )}
     </div>
