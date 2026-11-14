@@ -1,9 +1,6 @@
 import { formatarPreco } from '../utils/formatarPreco'
 
-function BarraCarrinho({ carrinho, aoClicar, pulsando }) {
-  const quantidadeTotal = carrinho.reduce((soma, item) => soma + item.quantidade, 0)
-  const valorTotal = carrinho.reduce((soma, item) => soma + item.quantidade * item.preco, 0)
-
+function BarraCarrinho({ quantidadeTotal, valorTotal, aoClicar, pulsando }) {
   // Sem itens não há pedido para ver: a barra só aparece quando faz sentido.
   if (quantidadeTotal === 0) return null
 

@@ -3,7 +3,6 @@ import SeletorOpcoes from './SeletorOpcoes'
 import { formatarPreco } from '../utils/formatarPreco'
 import { linkWhatsApp } from '../config/loja'
 import {
-  calcularTotal,
   formasDePagamento,
   formasDeRecebimento,
   montarMensagem,
@@ -13,7 +12,7 @@ import {
 const classeCampo =
   "w-full h-12 bg-chapa text-creme border border-borda rounded-xl px-3.5 mt-1.5 placeholder:text-areia/70"
 
-function Carrinho({ carrinho, aoFechar, aoAdicionar, aoRemoverUm }) {
+function Carrinho({ carrinho, valorTotal, aoFechar, aoAdicionar, aoRemoverUm }) {
   // Um único objeto guarda todos os campos do formulário.
   const [dados, setDados] = useState({
     nome: "",
@@ -24,7 +23,6 @@ function Carrinho({ carrinho, aoFechar, aoAdicionar, aoRemoverUm }) {
   })
   const [erros, setErros] = useState({})
 
-  const valorTotal = calcularTotal(carrinho)
   const pedidoVazio = carrinho.length === 0
 
   // Fecha a tela com a tecla Esc. O "return" remove o ouvinte quando

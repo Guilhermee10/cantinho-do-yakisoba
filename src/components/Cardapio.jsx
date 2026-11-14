@@ -3,6 +3,7 @@ import Destaque from './Destaque'
 import CartaoYakisoba from './CartaoYakisoba'
 import CartaoBebida from './CartaoBebida'
 import { yakisobas, bebidas, destaque } from '../data/produtos'
+import { calcularQuantidade } from '../utils/carrinho'
 
 const abas = [
   { id: "yakisobas", rotulo: "Yakisobas" },
@@ -16,9 +17,7 @@ function Cardapio({ carrinho, aoAdicionar }) {
   // Soma as quantidades de todas as linhas do carrinho que são do mesmo
   // produto (ex.: Especial Mini + Especial Grande).
   function quantidadeDoProduto(idProduto) {
-    return carrinho
-      .filter((item) => item.idProduto === idProduto)
-      .reduce((soma, item) => soma + item.quantidade, 0)
+    return calcularQuantidade(carrinho.filter((item) => item.idProduto === idProduto))
   }
 
   return (
