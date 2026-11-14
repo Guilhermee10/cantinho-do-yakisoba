@@ -1,3 +1,5 @@
+import { formatarPreco } from "../utils/formatarPreco.js"
+
 // Tamanhos em que todo yakisoba é vendido.
 // Antes havia 8 produtos (4 sabores x 2 tamanhos) escritos um a um;
 // agora o sabor é o produto e o tamanho é uma opção dele.
@@ -44,22 +46,24 @@ export const yakisobas = [
 export const bebidas = [
   {
     id: "refri-1l",
-    nome: "Bebidas de 1L",
-    descricao: "Coca, fanta e kuat. Escolher na hora da compra.",
+    nome: "Refrigerante 1 L",
+    descricao: "Garrafa de 1 litro.",
     preco: 10.0,
+    sabores: ["Coca-Cola", "Fanta", "Kuat"],
     imagem: "/assets/coca-cola-1-litro.jpg",
   },
   {
-    id: "lata",
-    nome: "Lata",
-    descricao: "Coca, fanta e kuat.",
+    id: "refri-lata",
+    nome: "Refrigerante lata",
+    descricao: "Em lata.",
     preco: 6.0,
+    sabores: ["Coca-Cola", "Fanta", "Kuat"],
     imagem: "/assets/refri-1.png",
   },
   {
     id: "suco",
     nome: "Suco da fruta",
-    descricao: "Escolhe o sabor na hora da compra.",
+    descricao: "O sabor você combina com a loja no WhatsApp.",
     preco: 12.0,
     imagem: "/assets/suco1.webp",
   },
@@ -67,8 +71,8 @@ export const bebidas = [
 
 // Produto que aparece no destaque acima do cardápio.
 export const destaque = {
-  idProduto: "especial-da-casa",
-  selo: "O mais completo",
+  idProduto: "especial",
+  selo: "Favorito da casa",
 }
 
 // Transforma "produto + tamanho" num item de carrinho.
@@ -85,16 +89,23 @@ export function criarItemYakisoba(produto, tamanho) {
   }
 }
 
-export function criarItemBebida(produto) {
+// O sabor entra na chave pelo mesmo motivo do tamanho: Coca e Fanta
+// são linhas diferentes do pedido. Bebida sem sabores usa só o id.
+export function criarItemBebida(produto, sabor = null) {
   return {
-    chave: produto.id,
+    chave: sabor ? `${produto.id}-${sabor}` : produto.id,
     idProduto: produto.id,
     nome: produto.nome,
-    detalhe: "",
+    detalhe: sabor ?? "",
     preco: produto.preco,
   }
 }
 
-export function menorPreco(produto) {
-  return Math.min(...Object.values(produto.precos))
+// Monta as opções de tamanho de um yakisoba no formato do SeletorOpcoes.
+export function opcoesDeTamanho(produto) {
+  return Object.entries(tamanhos).map(([id, { rotulo, peso }]) => ({
+    id,
+    rotulo: `${rotulo} · ${peso}`,
+    valor: formatarPreco(produto.precos[id]),
+  }))
 }

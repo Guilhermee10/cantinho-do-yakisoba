@@ -9,7 +9,7 @@ const abas = [
   { id: "bebidas", rotulo: "Bebidas" },
 ]
 
-function Cardapio({ carrinho, aoAdicionar, aoRemoverUm }) {
+function Cardapio({ carrinho, aoAdicionar }) {
   const [abaAtiva, setAbaAtiva] = useState("yakisobas")
   const produtoDestaque = yakisobas.find((p) => p.id === destaque.idProduto)
 
@@ -21,20 +21,10 @@ function Cardapio({ carrinho, aoAdicionar, aoRemoverUm }) {
       .reduce((soma, item) => soma + item.quantidade, 0)
   }
 
-  function irParaDestaque() {
-    setAbaAtiva("yakisobas")
-    // Espera o React desenhar a aba antes de rolar até o card.
-    requestAnimationFrame(() => {
-      document
-        .getElementById(destaque.idProduto)
-        ?.scrollIntoView({ behavior: "smooth", block: "center" })
-    })
-  }
-
   return (
     <main id="menu" className="max-w-5xl mx-auto px-4 pt-4 pb-10">
       {produtoDestaque && (
-        <Destaque produto={produtoDestaque} selo={destaque.selo} aoPedir={irParaDestaque} />
+        <Destaque produto={produtoDestaque} selo={destaque.selo} aoAdicionar={aoAdicionar} />
       )}
 
       <h2 className="font-display text-2xl text-creme mb-3">CARDÁPIO</h2>
@@ -70,9 +60,8 @@ function Cardapio({ carrinho, aoAdicionar, aoRemoverUm }) {
               <CartaoBebida
                 key={produto.id}
                 produto={produto}
-                quantidade={quantidadeDoProduto(produto.id)}
+                quantidadeNoPedido={quantidadeDoProduto(produto.id)}
                 aoAdicionar={aoAdicionar}
-                aoRemoverUm={aoRemoverUm}
               />
             ))}
       </div>

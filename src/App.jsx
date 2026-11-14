@@ -55,7 +55,6 @@ function App() {
       <Cardapio
         carrinho={carrinho}
         aoAdicionar={adicionarAoCarrinho}
-        aoRemoverUm={removerUmDoCarrinho}
       />
       <Footer />
 
