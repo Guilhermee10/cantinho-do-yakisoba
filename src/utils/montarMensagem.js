@@ -1,4 +1,5 @@
 import { formatarPreco } from "./formatarPreco.js"
+import { calcularTotal } from "./carrinho.js"
 
 export const formasDeRecebimento = [
   { id: "entrega", rotulo: "Entrega" },
@@ -10,10 +11,6 @@ export const formasDePagamento = [
   { id: "cartao", rotulo: "Cartão" },
   { id: "dinheiro", rotulo: "Dinheiro" },
 ]
-
-export function calcularTotal(carrinho) {
-  return carrinho.reduce((soma, item) => soma + item.quantidade * item.preco, 0)
-}
 
 // Confere o que falta preencher. Devolve um objeto só com os campos
 // que têm problema: { nome: "Digite seu nome." }. Objeto vazio = tudo certo.

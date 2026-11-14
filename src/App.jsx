@@ -6,41 +6,19 @@ import Cardapio from './components/Cardapio'
 import BarraCarrinho from './components/BarraCarrinho'
 import Carrinho from './components/Carrinho'
 import Footer from './components/Footer'
+import { useCarrinho } from './hooks/useCarrinho'
 
 function App() {
-  const [carrinho, setCarrinho] = useState([])
+  const { carrinho, adicionar, removerUm, quantidadeTotal, valorTotal } = useCarrinho()
   const [carrinhoAberto, setCarrinhoAberto] = useState(false)
   const [pulsando, setPulsando] = useState(false)
 
-  // Cada linha do carrinho é identificada pela "chave" (produto + tamanho),
-  // e não só pelo id do produto: Especial Mini e Especial Grande são linhas diferentes.
-  function adicionarAoCarrinho(novoItem) {
-    setCarrinho((carrinhoAtual) => {
-      const itemExistente = carrinhoAtual.find((item) => item.chave === novoItem.chave)
-
-      if (itemExistente) {
-        return carrinhoAtual.map((item) =>
-          item.chave === novoItem.chave
-            ? { ...item, quantidade: item.quantidade + 1 }
-            : item
-        )
-      }
-
-      return [...carrinhoAtual, { ...novoItem, quantidade: 1 }]
-    })
-
+  // A animação da barra é coisa da tela, não do carrinho,
+  // por isso fica aqui e não dentro do hook.
+  function adicionarComAnimacao(item) {
+    adicionar(item)
     setPulsando(true)
     setTimeout(() => setPulsando(false), 250)
-  }
-
-  function removerUmDoCarrinho(chave) {
-    setCarrinho((carrinhoAtual) =>
-      carrinhoAtual
-        .map((item) =>
-          item.chave === chave ? { ...item, quantidade: item.quantidade - 1 } : item
-        )
-        .filter((item) => item.quantidade > 0)
-    )
   }
 
   return (
@@ -48,14 +26,12 @@ function App() {
       <ToastContainer position="top-center" theme="dark" autoClose={1500} hideProgressBar />
 
       <Header />
-      <Cardapio
-        carrinho={carrinho}
-        aoAdicionar={adicionarAoCarrinho}
-      />
+      <Cardapio carrinho={carrinho} aoAdicionar={adicionarComAnimacao} />
       <Footer />
 
       <BarraCarrinho
-        carrinho={carrinho}
+        quantidadeTotal={quantidadeTotal}
+        valorTotal={valorTotal}
         aoClicar={() => setCarrinhoAberto(true)}
         pulsando={pulsando}
       />
@@ -63,9 +39,10 @@ function App() {
       {carrinhoAberto && (
         <Carrinho
           carrinho={carrinho}
+          valorTotal={valorTotal}
           aoFechar={() => setCarrinhoAberto(false)}
-          aoAdicionar={adicionarAoCarrinho}
-          aoRemoverUm={removerUmDoCarrinho}
+          aoAdicionar={adicionar}
+          aoRemoverUm={removerUm}
         />
       )}
     </div>
